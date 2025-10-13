@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: library-events-producer
+server:
+  port: 8080
+
