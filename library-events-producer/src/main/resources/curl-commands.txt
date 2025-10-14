@@ -1,0 +1,57 @@
+# To execute curl commands in IntelliJ:
+# 1. Go to Tools -> HTTP Client -> Test RESTful Web Service
+# 2. Paste the curl command
+# 3. Click the "Run" button or use shortcut Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac)
+
+POST WITH-NULL-LIBRARY-EVENT-ID  
+---------------------
+
+curl -i \
+-d '{"libraryEventId":null,"libraryEventType": "NEW","book":{"bookId":456,"bookName":"Kafka Using Spring Boot","bookAuthor":"Dilip"}}' \
+-H "Content-Type: application/json" \
+-X POST http://localhost:8080/v1/libraryevent
+
+PUT WITH ID - 1
+--------------
+# Use Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac) to execute
+curl -i \
+-d '{"libraryEventId":1,"libraryEventType": "UPDATE","book":{"bookId":456,"bookName":"Kafka Using Spring Boot 2.X","bookAuthor":"Dilip"}}' \
+-H "Content-Type: application/json" \
+-X PUT http://localhost:8080/v1/libraryevent
+
+curl -i \
+-d '{"libraryEventId":2,"libraryEventType": "UPDATE","book":{"bookId":456,"bookName":"Kafka Using Spring Boot 2.X","bookAuthor":"Dilip"}}' \
+-H "Content-Type: application/json" \
+-X PUT http://localhost:8080/v1/libraryevent
+
+
+
+PUT WITH ID
+---------------------
+# Use Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac) to execute
+curl -i \
+-d '{"libraryEventId":123,"libraryEventType": "UPDATE","book":{"bookId":456,"bookName":"Kafka Using Spring Boot","bookAuthor":"Dilip"}}' \
+-H "Content-Type: application/json" \
+-X PUT http://localhost:8080/v1/libraryevent
+
+curl -i \
+-d '{"libraryEventId":999,"libraryEventType": "UPDATE","book":{"bookId":456,"bookName":"Kafka Using Spring Boot","bookAuthor":"Dilip"}}' \
+-H "Content-Type: application/json" \
+-X PUT http://localhost:8080/v1/libraryevent
+
+curl -i \
+-d '{"libraryEventId":2,"libraryEventType": "UPDATE","book":{"bookId":456,"bookName":"Kafka Using Spring Boot","bookAuthor":"Dilip"}}' \
+-H "Content-Type: application/json" \
+-X PUT http://localhost:8080/v1/libraryevent
+
+
+PUT WITHOUT ID
+---------------------
+# Use Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac) to execute
+curl -i \
+-d '{"libraryEventId":null,"libraryEventType": "UPDATE","book":{"bookId":456,"bookName":"Kafka Using Spring Boot","bookAuthor":"Dilip"}}' \
+-H "Content-Type: application/json" \
+-X PUT http://localhost:8080/v1/libraryevent
+
+
+./kafka-topics.sh --create --topic library-events.DLT --replication-factor 1 --partitions 4 --bootstrap-server localhost:9092
