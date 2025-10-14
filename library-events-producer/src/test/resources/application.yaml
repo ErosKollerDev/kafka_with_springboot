@@ -17,7 +17,6 @@ spring:
       properties:
         retries: 10
         retry.backoff.ms: 1000
-        acks: all
     admin:
       properties:
         bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
