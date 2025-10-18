@@ -20,7 +20,7 @@ PUT WITH ID - 1
 --------------
 # Use Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac) to execute
 curl -i \
--d '{"libraryEventId":1,"libraryEventType": "UPDATE","book":{"bookId":2,"bookName":"Kafka Using Spring Boot 2.X","bookAuthor":"xpto2"}}' \
+-d '{"libraryEventId":1,"libraryEventType": "UPDATE","book":{"bookId":456,"bookName":"Kafka Using Spring Boot 2.X","bookAuthor":"xpto2"}}' \
 -H "Content-Type: application/json" \
 -X PUT http://localhost:8080/v1/libraryevent
 

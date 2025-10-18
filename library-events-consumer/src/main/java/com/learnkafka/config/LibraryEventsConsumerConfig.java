@@ -1,6 +1,7 @@
 package com.learnkafka.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
@@ -14,15 +15,34 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.listener.DeliveryAttemptAwareRetryListener;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.Objects;
 
+@Slf4j
 @Configuration
 @EnableKafka
 @RequiredArgsConstructor
 public class LibraryEventsConsumerConfig {
 
     private final KafkaProperties properties;
+
+
+
+    public DefaultErrorHandler errorHandler() {
+        FixedBackOff backOff = new FixedBackOff(1000L, 2);
+        DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(backOff);
+
+        defaultErrorHandler.setRetryListeners((record, ex, deliveryAttempt) -> {
+            log.warn("Fail to Record Message, custom Listener by eRoS: ->  message {}. Attempt {}. Error: {}", record, deliveryAttempt, ex.getMessage());
+        });
+
+
+        return  defaultErrorHandler;
+    }
+
 
     @Bean
     @ConditionalOnMissingBean(
@@ -34,8 +54,9 @@ public class LibraryEventsConsumerConfig {
         Objects.requireNonNull(factory);
         kafkaContainerCustomizer.ifAvailable(factory::setContainerCustomizer);
 
+        factory.setConcurrency(3);
+        factory.setCommonErrorHandler(this.errorHandler());
 //        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-//        factory.setConcurrency(3);
         return factory;
     }
 }

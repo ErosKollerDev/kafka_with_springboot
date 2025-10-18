@@ -1,6 +1,0 @@
-2025-10-16 07:50:00.329725-03:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "HTE_PERSON" already exists; SQL statement:
-create global temporary table HTE_person(age integer, rn_ integer not null, version integer, id bigint, email varchar(255), name varchar(255), gender enum ('FEMALE','MALE','OTHER'), primary key (rn_)) TRANSACTIONAL [42101-232]
-2025-10-16 07:53:44.912389-03:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "HTE_PERSON" already exists; SQL statement:
-create global temporary table HTE_person(age integer, rn_ integer not null, version integer, created_at timestamp(6), id bigint, updated_at timestamp(6), email varchar(255), name varchar(255), gender enum ('FEMALE','MALE','OTHER'), primary key (rn_)) TRANSACTIONAL [42101-232]
