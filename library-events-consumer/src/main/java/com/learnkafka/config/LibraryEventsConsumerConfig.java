@@ -14,11 +14,12 @@ import org.springframework.kafka.config.ContainerCustomizer;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.kafka.listener.DeliveryAttemptAwareRetryListener;
+import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
+import org.springframework.util.backoff.ExponentialBackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -30,17 +31,32 @@ public class LibraryEventsConsumerConfig {
     private final KafkaProperties properties;
 
 
-
     public DefaultErrorHandler errorHandler() {
-        FixedBackOff backOff = new FixedBackOff(1000L, 2);
-        DefaultErrorHandler defaultErrorHandler = new DefaultErrorHandler(backOff);
+
+
+
+        var fixedBackOff = new FixedBackOff(1000L, 2);
+        var exponentialBackOffWithMaxRetries = new ExponentialBackOffWithMaxRetries(2);
+        exponentialBackOffWithMaxRetries.setInitialInterval(1_000L);
+        exponentialBackOffWithMaxRetries.setMaxInterval(2_000L);
+        exponentialBackOffWithMaxRetries.setMultiplier(3.0D);
+
+        var defaultErrorHandler = new DefaultErrorHandler(
+                exponentialBackOffWithMaxRetries
+//                fixedBackOff
+        );
+        var errorListsNotRetriable = List.of(
+                IllegalArgumentException.class
+        );
+        errorListsNotRetriable.forEach(defaultErrorHandler::addNotRetryableExceptions);
+
 
         defaultErrorHandler.setRetryListeners((record, ex, deliveryAttempt) -> {
             log.warn("Fail to Record Message, custom Listener by eRoS: ->  message {}. Attempt {}. Error: {}", record, deliveryAttempt, ex.getMessage());
         });
 
 
-        return  defaultErrorHandler;
+        return defaultErrorHandler;
     }
 
 
@@ -50,7 +66,7 @@ public class LibraryEventsConsumerConfig {
     )
     ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(ConcurrentKafkaListenerContainerFactoryConfigurer configurer, ObjectProvider<ConsumerFactory<Object, Object>> kafkaConsumerFactory, ObjectProvider<ContainerCustomizer<Object, Object, ConcurrentMessageListenerContainer<Object, Object>>> kafkaContainerCustomizer) {
         ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        configurer.configure(factory, (ConsumerFactory)kafkaConsumerFactory.getIfAvailable(() -> new DefaultKafkaConsumerFactory(this.properties.buildConsumerProperties())));
+        configurer.configure(factory, (ConsumerFactory) kafkaConsumerFactory.getIfAvailable(() -> new DefaultKafkaConsumerFactory(this.properties.buildConsumerProperties())));
         Objects.requireNonNull(factory);
         kafkaContainerCustomizer.ifAvailable(factory::setContainerCustomizer);
 

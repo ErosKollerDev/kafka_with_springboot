@@ -10,6 +10,7 @@ import com.learnkafka.repository.LibraryEventsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -26,6 +27,15 @@ public class LibraryEventsService {
     public void saveLibraryEvent(ConsumerRecord<Integer, String> consumerRecord) throws JsonProcessingException {
         log.info("Saving LibraryEvent");
         LibraryEvent libraryEvent = objectMapper.readValue(consumerRecord.value(), LibraryEvent.class);
+
+        if(libraryEvent != null && libraryEvent.getLibraryEventId() != null && libraryEvent.getLibraryEventId() == 9999){
+            throw new RecoverableDataAccessException("""
+                        
+                        Testing RecoverableDataAccessException.
+                        Temporary exception, should be resolved in next retry.
+                    """);
+        }
+
 
         switch (libraryEvent.getLibraryEventType()) {
             case LibraryEventType.NEW -> save(libraryEvent);

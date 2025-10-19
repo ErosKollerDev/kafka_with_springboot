@@ -154,6 +154,21 @@ class LibraryEventConsumerIntegrationTest {
         CountDownLatch latch = new CountDownLatch(1);
         latch.await(3, TimeUnit.SECONDS);
         //then
+        verify(libraryEventsConsumerSpy, times(1)).onMessage(isA(ConsumerRecord.class));
+        verify(libraryEventsServiceSpy, times(1)).saveLibraryEvent(isA(ConsumerRecord.class));
+
+    }
+
+    @Test
+    void publishUpdateEvent_retriable_exception_libraryEvent() throws ExecutionException, InterruptedException, JsonProcessingException {
+        //given
+        String json = " {\"libraryEventId\":9999,\"libraryEventType\":\"UPDATE\",\"book\":{\"bookId\":456,\"bookName\":\"Kafka Using Spring Boot\",\"bookAuthor\":\"Dilip\"}}";
+        kafkaTemplate.send("library-events", json).get();
+
+        //when
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(6, TimeUnit.SECONDS);
+        //then
         verify(libraryEventsConsumerSpy, times(3)).onMessage(isA(ConsumerRecord.class));
         verify(libraryEventsServiceSpy, times(3)).saveLibraryEvent(isA(ConsumerRecord.class));
 
